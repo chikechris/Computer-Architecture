@@ -131,4 +131,4 @@ class CPU:
             else:
                 print('Invalid Command: please check the IS8 spec.')
 
-        # self.trace()
+ 
