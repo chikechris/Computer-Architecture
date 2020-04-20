@@ -2,12 +2,23 @@
 
 import sys
 
+
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        # create the ram array that will have a total of 256
+        # spaces because of the structure of the cpu in the spec
+        self.ram = [0] * 256
+
+        # create a register array that will carry all variables
+        # that need to be executed for every opcode instruction
+        self.reg = [0] * 8
+
+        # create a pc counter variable that will be initialized to
+        # zero
+        self.pc = 0
 
     def load(self):
         """Load a program into memory."""
@@ -18,18 +29,17 @@ class CPU:
 
         program = [
             # From print8.ls8
-            0b10000010, # LDI R0,8
+            0b10000010,  # LDI R0,8
             0b00000000,
             0b00001000,
-            0b01000111, # PRN R0
+            0b01000111,  # PRN R0
             0b00000000,
-            0b00000001, # HLT
+            0b00000001,  # HLT
         ]
 
         for instruction in program:
             self.ram[address] = instruction
             address += 1
-
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -45,6 +55,7 @@ class CPU:
         Handy function to print out the CPU state. You might want to call this
         from run() if you need help debugging.
         """
+        # self.pc = 0
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
@@ -60,6 +71,64 @@ class CPU:
 
         print()
 
+    def ram_write(self, value, address):
+        # this function accepts a value and an address to which the
+        # value will be stored in the ram array.
+
+        # store the value into self.ram through self.ram[address] = value
+
+        # return a message that the insertion was a success
+
+        self.ram[address] = value
+        print(f'value {value} has been stored at ram position {address}')
+
+    def ram_read(self, address):
+        # This function will take in an address (either in binary or
+        # base 10) and return the value stored in the ram in that specific
+        # adress
+
+        return self.ram[address]
+
     def run(self):
         """Run the CPU."""
-        pass
+
+        # specify the instruction variables (initial instructions LDI, HLT, PRN)
+        HLT = 0b00000001  # used to stop the program
+        LDI = 0b10000010  # used to save a specific value into the register
+        PRN = 0b01000111  # used to print a specific value in the register
+
+        # create a while loop that will only terminate once the command
+        # HLT is read from the ram.
+        # create an instruction variable (since the assumption is the
+        # first value in the ram is an instruction) initialize it to
+        # first index in ram.
+
+        # if the command is LDI:
+        # write value in self.ram[self.pc + 2] into self.reg[self.pc + 1]
+        # increment self.pc by three since command was three bytes.
+        # elif command is PRN:
+        # find value in position self.pc + 1 in the register
+        # print the value as a decimal.
+        # increment self.pc by two since command was two bytes.
+        # elif command is HLT:
+        # terminate the while loop
+        # else:
+        # print an error message
+        while True:
+            instruction = self.ram[self.pc]
+
+            if instruction == LDI:
+                self.reg[self.ram[self.pc + 1]] = self.ram[self.pc + 2]
+                # print('value from ram at pc + 1', self.ram[self.pc + 1])
+                # print('value from ram at pc + 2', self.ram[self.pc + 2])
+                self.pc += 3
+            elif instruction == PRN:
+                execute_value = self.reg[self.ram[self.pc + 1]]
+                print(execute_value)
+                self.pc += 2
+            elif instruction == HLT:
+                break
+            else:
+                print('Invalid Command: please check the IS8 spec.')
+
+        # self.trace()
